@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KAIRO RECORDS — Cinematic Music Production &amp; Creative Audio House</title>
+  
+  <!-- SEO & Brand Metadata -->
+  <meta name="description" content="KAIRO RECORDS is a premium music production company, record label, and creative audio house based in Cairo, Egypt.">
+  <meta name="keywords" content="Kairo Records, Music Production, Record Label, Film Score, Sound Design, Mixing and Mastering, Dolby Atmos, Cairo Sound Studio, Creative Audio House">
+  <meta name="author" content="KAIRO RECORDS">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="KAIRO RECORDS">
+  <meta property="og:description" content="We create sound that doesn’t just play. It stays. Music Production, Film Scores, and Spatial Audio.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/logo/kairo-logo.png">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/logo/kairo-logo.png">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Cinematic Film Grain & Vignette Overlays -->
+  <div class="film-grain" aria-hidden="true"></div>
+  <div class="cinematic-vignette" aria-hidden="true"></div>
+  <div class="ambient-glow-navy" aria-hidden="true"></div>
+  <div class="ambient-glow-navy-secondary" aria-hidden="true"></div>
+
+  <!-- ================= 1. CINEMATIC INTRO SCREEN (COMPLETELY SILENT) ================= -->
+  <div class="cinematic-intro" id="cinematicIntro">
+    <div class="intro-content">
+      <span class="intro-label">An Audio / Visual Experience</span>
+      <div class="intro-logo-box">
+        <img src="assets/logo/kairo-logo.png" alt="KAIRO RECORDS" width="1024" height="398">
+      </div>
+      <button type="button" class="intro-enter-btn" id="enterSiteBtn">
+        <span class="dot-pulse"></span>
+        <span>Enter Experience</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= 2. FLOATING NAVIGATION BAR ================= -->
+  <header class="site-nav" id="topNav">
+    <div class="container nav-inner">
+      <div class="nav-brand">
+        <a href="#hero" class="nav-brand-logo" aria-label="KAIRO RECORDS Home">
+          <img src="assets/logo/kairo-logo.png" alt="KAIRO RECORDS" width="1024" height="398">
+        </a>
+        <div class="nav-status-badge">
+          <span class="status-dot-live"></span>
+          <span id="cairoNavClock">CAIRO --:--:-- UTC+2</span>
+        </div>
+      </div>
+
+      <nav aria-label="Primary Navigation">
+        <ul class="nav-links">
+          <li><a href="#hero" class="nav-link active">Home</a></li>
+          <li><a href="#about" class="nav-link">About</a></li>
+          <li><a href="#services" class="nav-link">Services</a></li>
+          <li><a href="#contact" class="nav-link">Contact</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="#contact" class="nav-cta-btn">
+          <span>Start a Project</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+        </a>
+
+        <!-- Mobile Hamburger Toggle -->
+        <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle Navigation">
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Menu Drawer -->
+  <div class="mobile-drawer" id="mobileDrawer" aria-hidden="true">
+    <ul class="mobile-drawer-links">
+      <li><a href="#hero" class="mobile-drawer-link">Home</a></li>
+      <li><a href="#about" class="mobile-drawer-link">About</a></li>
+      <li><a href="#services" class="mobile-drawer-link">Services</a></li>
+      <li><a href="#contact" class="mobile-drawer-link">Contact</a></li>
+    </ul>
+    <div style="margin-top: 1.5rem; text-align: center;">
+      <a href="#contact" class="btn-primary-cinematic" id="mobileCtaBtn">Start a Project</a>
+    </div>
+  </div>
+
+  <main>
+    <!-- ================= 3. HERO SECTION (CLEAN CINEMATIC DARK BACKGROUND) ================= -->
+    <section class="hero-wrapper" id="hero">
+      <!-- Clean Dark Cinematic Media Backdrop (Ready for future official Kairo Records video/imagery) -->
+      <div class="hero-media-backdrop" id="heroMediaBackdrop" aria-hidden="true">
+        <div class="hero-dark-ambient-gradient"></div>
+        <div class="hero-subtle-glow-orb"></div>
+      </div>
+
+      <div class="hero-canvas-overlay" aria-hidden="true"></div>
+      <div class="hero-rim-light" aria-hidden="true"></div>
+
+      <!-- Hero Cinematic Copy -->
+      <div class="hero-content">
+        <div class="hero-editorial-badge">
+          <span>MUSIC PRODUCTION</span>
+          <span style="opacity: 0.4;">·</span>
+          <span>CREATIVE AUDIO</span>
+          <span style="opacity: 0.4;">·</span>
+          <span>VISUAL STORIES</span>
+        </div>
+
+        <h1 class="hero-title">
+          <span class="text-gradient-blue">KAIRO RECORDS</span>
+        </h1>
+
+        <p class="hero-statement">
+          We don’t just record audio. We craft <strong>visceral acoustic universes</strong>, cultivate boundary-pushing artists, and engineer sound that doesn’t just play. It stays.
+        </p>
+
+        <div class="hero-cta-group">
+          <a href="#contact" class="btn-primary-cinematic">
+            <span>Start a Project</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#services" class="btn-secondary-cinematic">
+            <span>Explore Services</span>
+          </a>
+        </div>
+
+        <div class="hero-metadata-strip">
+          <div class="hero-meta-item">
+            <span>LOCATION:</span>
+            <span class="value">Cairo, Egypt</span>
+          </div>
+          <div class="hero-meta-item">
+            <span>STANDARD:</span>
+            <span class="value">48kHz / 24-Bit · Dolby Atmos</span>
+          </div>
+          <div class="hero-meta-item">
+            <span>ESTABLISHED:</span>
+            <span class="value">2026</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scroll Prompt -->
+      <div class="hero-scroll-prompt">
+        <span>Scroll to Explore</span>
+        <div class="scroll-line-indicator"></div>
+      </div>
+    </section>
+
+    <!-- ================= 4. ABOUT SECTION (EST. 2026 · CAIRO ONLY) ================= -->
+    <section class="section-wrapper darker" id="about">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">// 01 — THE COMPANY</span>
+          <h2 class="section-title">ABOUT KAIRO RECORDS</h2>
+        </div>
+
+        <div class="about-grid">
+          <div class="about-text-column">
+            <h3 class="about-statement-large">
+              WE DON’T JUST PRODUCE MUSIC.<br>
+              <span class="highlight">WE BUILD WORLDS AROUND IT.</span>
+            </h3>
+
+            <p class="about-narrative">
+              Founded at the nexus of cinematic storytelling and acoustic vanguardism, KAIRO is an independent music production company, record label, and audio-visual house based in Cairo.
+            </p>
+
+            <p class="about-narrative">
+              We fuse the irreplaceable weight of analog circuitry with state-of-the-art spatial synthesis. From subterranean electronic records and world-class live tracking to original motion picture scores, every frequency we sculpt carries intention, narrative depth, and cultural resonance.
+            </p>
+
+            <div class="about-specs-grid">
+              <div class="about-spec-box">
+                <span class="spec-key">ESTABLISHED</span>
+                <span class="spec-val">EST. 2026</span>
+              </div>
+              <div class="about-spec-box">
+                <span class="spec-key">LOCATION</span>
+                <span class="spec-val">CAIRO</span>
+              </div>
+              <div class="about-spec-box">
+                <span class="spec-key">DISCIPLINES</span>
+                <span class="spec-val">Music / Audio / Cinema</span>
+              </div>
+              <div class="about-spec-box">
+                <span class="spec-key">OUTPUT</span>
+                <span class="spec-val">48kHz / 24-Bit · Dolby Atmos</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="about-image-column">
+            <div class="about-image-card">
+              <img src="assets/studio/control-room.jpg" alt="Kairo Records Studio Control Room" loading="lazy">
+              <div class="about-image-stamp">
+                <span>KAIRO RECORDS</span>
+                <span>CAIRO, EGYPT</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 5. SERVICES SECTION (01 TO 08) ================= -->
+    <section class="section-wrapper navy-depth" id="services">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">// 02 — CAPABILITIES</span>
+          <h2 class="section-title">CREATIVE DISCIPLINES</h2>
+          <p class="section-subtitle">
+            An end-to-end production ecosystem engineered for uncompromising sonic and visual excellence.
+          </p>
+        </div>
+
+        <div class="services-grid" id="servicesGridContainer">
+          <div class="service-card" data-service="1">
+            <div class="service-card-content">
+              <div class="service-top-row">
+                <span class="service-number">01</span>
+                <div class="service-waveform-icon"><span></span><span></span><span></span></div>
+              </div>
+              <div>
+                <h3 class="service-title">MUSIC PRODUCTION</h3>
+                <h4 class="service-tagline">Full-Spectrum Sonic Architecture</h4>
+                <p class="service-desc">From embryonic chord progressions to monumental wall-of-sound arrangements. Bespoke record production using vintage analog gear and modern digital synthesis.</p>
+              </div>
+              <div class="service-deliverables">
+                <span class="service-chip">Custom Arrangement</span>
+                <span class="service-chip">Live Tracking</span>
+                <span class="service-chip">Vocal Production</span>
+                <span class="service-chip">Stem Delivery</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="service-card" data-service="2">
+            <div class="service-card-content">
+              <div class="service-top-row">
+                <span class="service-number">02</span>
+                <div class="service-waveform-icon"><span></span><span></span><span></span></div>
+              </div>
+              <div>
+                <h3 class="service-title">SOUND DESIGN</h3>
+                <h4 class="service-tagline">Immersive Auditory Worldbuilding</h4>
+                <p class="service-desc">Translating visual narrative into visceral acoustic impact. Modular synthesizer patches, cinematic foley, trailer hits, and psychological soundscapes.</p>
+              </div>
+              <div class="service-deliverables">
+                <span class="service-chip">Cinematic Foley</span>
+                <span class="service-chip">Modular Patches</span>
+                <span class="service-chip">Trailer FX</span>
+                <span class="service-chip">Spatial Audio</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="service-card" data-service="3">
+            <div class="service-card-content">
+              <div class="service-top-row">
+                <span class="service-number">03</span>
+                <div class="service-waveform-icon"><span></span><span></span><span></span></div>
+              </div>
+              <div>
+                <h3 class="service-title">MIXING &amp; MASTERING</h3>
+                <h4 class="service-tagline">Pristine Analog Depth &amp; Dolby Atmos</h4>
+                <p class="service-desc">Balancing punch and spatial depth through our SSL 4000G+ desk, tube compressors, and Studer A800 2-inch tape machine.</p>
+              </div>
+              <div class="service-deliverables">
+                <span class="service-chip">SSL Analog Summing</span>
+                <span class="service-chip">Dolby Atmos Spatial</span>
+                <span class="service-chip">180g Vinyl Cut Master</span>
+                <span class="service-chip">Lossless Digital</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="service-card" data-service="4">
+            <div class="service-card-content">
+              <div class="service-top-row">
+                <span class="service-number">04</span>
+                <div class="service-waveform-icon"><span></span><span></span><span></span></div>
+              </div>
+              <div>
+                <h3 class="service-title">ARTIST DEVELOPMENT</h3>
+                <h4 class="service-tagline">Sonic Identity &amp; Aesthetic Strategy</h4>
+                <p class="service-desc">Guiding artists from underground prodigy to world-stage presence. Vocal coaching, sound signature definition, and complete album rollout strategies.</p>
+              </div>
+              <div class="service-deliverables">
+                <span class="service-chip">Sonic Brand Audit</span>
+                <span class="service-chip">A&amp;R Mentorship</span>
+                <span class="service-chip">Vocal Coaching</span>
+                <span class="service-chip">Rollout Strategy</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="service-card" data-service="5">
+            <div class="service-card-content">
+              <div class="service-top-row">
+                <span class="service-number">05</span>
+                <div class="service-waveform-icon"><span></span><span></span><span></span></div>
+              </div>
+              <div>
+                <h3 class="service-title">MUSIC VIDEO PRODUCTION</h3>
+                <h4 class="service-tagline">A24-Level Cinematic Direction</h4>
+                <p class="service-desc">Music videos directed as short-form cinema. 35mm anamorphic glass, atmospheric lighting, bespoke set design, and frame-accurate editing.</p>
+              </div>
+              <div class="service-deliverables">
+                <span class="service-chip">Treatment &amp; Script</span>
+                <span class="service-chip">35mm Cinematography</span>
+                <span class="service-chip">Film Color Grading</span>
+                <span class="service-chip">Visual Effects</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="service-card" data-service="6">
+            <div class="service-card-content">
+              <div class="service-top-row">
+                <span class="service-number">06</span>
+                <div class="service-waveform-icon"><span></span><span></span><span></span></div>
+              </div>
+              <div>
+                <h3 class="service-title">AUDIO BRANDING</h3>
+                <h4 class="service-tagline">The Acoustic Soul of Luxury Brands</h4>
+                <p class="service-desc">Designing unmistakable sonic mnemonics, runway soundtracks, and spatial acoustic ecosystems for luxury fashion houses and tech pioneers.</p>
+              </div>
+              <div class="service-deliverables">
+                <span class="service-chip">Sonic Logos</span>
+                <span class="service-chip">Runway Soundtracks</span>
+                <span class="service-chip">Retail Spatial Audio</span>
+                <span class="service-chip">Brand Guidelines</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="service-card" data-service="7">
+            <div class="service-card-content">
+              <div class="service-top-row">
+                <span class="service-number">07</span>
+                <div class="service-waveform-icon"><span></span><span></span><span></span></div>
+              </div>
+              <div>
+                <h3 class="service-title">RECORDING</h3>
+                <h4 class="service-tagline">Acoustically Flawless Live Rooms</h4>
+                <p class="service-desc">Purpose-built live suites with floating floors, diffuse reflection architecture, vintage Neumann tube mics, and -45dB acoustic isolation.</p>
+              </div>
+              <div class="service-deliverables">
+                <span class="service-chip">Vintage Mic Locker</span>
+                <span class="service-chip">Grand Piano Suite</span>
+                <span class="service-chip">Drum Tracking Chamber</span>
+                <span class="service-chip">Zero-Latency HDX</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="service-card" data-service="8">
+            <div class="service-card-content">
+              <div class="service-top-row">
+                <span class="service-number">08</span>
+                <div class="service-waveform-icon"><span></span><span></span><span></span></div>
+              </div>
+              <div>
+                <h3 class="service-title">CREATIVE DIRECTION</h3>
+                <h4 class="service-tagline">Cohesive Visual Universes for Sound</h4>
+                <p class="service-desc">Unifying album artwork, typography, physical packaging, stage design, and digital campaigns into one singular, unforgettable artistic universe.</p>
+              </div>
+              <div class="service-deliverables">
+                <span class="service-chip">Album Art &amp; Packaging</span>
+                <span class="service-chip">Editorial Typography</span>
+                <span class="service-chip">Stage Lighting Design</span>
+                <span class="service-chip">Campaign Assets</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 6. CONTACT SECTION (OFFICIAL KAIRO RECORDS CONTACTS) ================= -->
+    <section class="section-wrapper darker" id="contact">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">// 03 — COMMISSIONS &amp; INQUIRIES</span>
+        </div>
+
+        <div class="contact-grid">
+          <div class="contact-info-col">
+            <h2 class="contact-headline">
+              LET’S MAKE<br>
+              SOMETHING<br>
+              <span class="highlight">WORTH HEARING.</span>
+            </h2>
+
+            <p style="font-size: 1.1rem; color: var(--text-secondary); max-width: 480px; line-height: 1.6;">
+              Whether you are planning a full-length record, an original motion picture score, an immersive spatial audio exhibition, or global audio branding, we are open for select commissions.
+            </p>
+
+            <div class="contact-direct-links">
+              <a href="mailto:kairo.rec.co@gmail.com" class="contact-link-row">
+                <span class="contact-link-tag">EMAIL</span>
+                <span>kairo.rec.co@gmail.com</span>
+              </a>
+              <a href="https://instagram.com/kairo.records" target="_blank" rel="noopener noreferrer" class="contact-link-row">
+                <span class="contact-link-tag">INSTAGRAM</span>
+                <span>@kairo.records</span>
+              </a>
+              <a href="https://www.youtube.com/@KAIROREC" target="_blank" rel="noopener noreferrer" class="contact-link-row">
+                <span class="contact-link-tag">YOUTUBE</span>
+                <span>@KAIROREC</span>
+              </a>
+              <a href="https://wa.me/201159613280" target="_blank" rel="noopener noreferrer" class="contact-link-row">
+                <span class="contact-link-tag">WHATSAPP</span>
+                <span>01159613280</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="contact-form-col">
+            <form class="contact-form-box" id="contactInquiryForm">
+              <div class="form-group">
+                <label for="contactName" class="form-label">Name / Artist / Company</label>
+                <input type="text" id="contactName" class="form-input" placeholder="e.g. Elena Vance" required>
+              </div>
+
+              <div class="form-group">
+                <label for="contactEmail" class="form-label">Email Address</label>
+                <input type="email" id="contactEmail" class="form-input" placeholder="elena@production.com" required>
+              </div>
+
+              <div class="form-group">
+                <label for="projectType" class="form-label">Project Type</label>
+                <select id="projectType" class="form-select">
+                  <option value="record-production">Record Production / Full Album</option>
+                  <option value="film-score">Original Motion Picture Score</option>
+                  <option value="mixing-mastering">Mixing &amp; Dolby Atmos Mastering</option>
+                  <option value="sound-design">Spatial Sound Design &amp; Installation</option>
+                  <option value="music-video">Cinematic Music Video Production</option>
+                  <option value="audio-branding">Luxury Audio Branding</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="contactMessage" class="form-label">Project Details &amp; Timeline</label>
+                <textarea id="contactMessage" class="form-textarea" placeholder="Tell us about your sonic vision, scope, and anticipated timeline..." required></textarea>
+              </div>
+
+              <button type="submit" class="form-submit-btn" id="contactSubmitBtn">
+                <span>Start a Project</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </button>
+
+              <div id="contactFormStatus" style="margin-top: 1rem; font-family: var(--font-mono); font-size: 0.8rem; display: none;"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= 7. CINEMATIC FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top-row">
+        <div class="footer-brand-side">
+          <a href="#hero" class="footer-logo-box">
+            <img src="assets/logo/kairo-logo.png" alt="KAIRO RECORDS" width="1024" height="398">
+          </a>
+          <h3 class="footer-motto">MADE FOR SOUND.<br>BUILT FOR STORIES.</h3>
+          <p class="footer-statement">
+            An independent music production house and creative audio sanctuary. Fusing deep analog circuitry with forward-thinking cinema.
+          </p>
+        </div>
+
+        <div class="footer-nav-columns">
+          <div class="footer-nav-col">
+            <span class="footer-col-title">NAVIGATION</span>
+            <a href="#hero" class="footer-col-link">Home</a>
+            <a href="#about" class="footer-col-link">About</a>
+            <a href="#services" class="footer-col-link">Services</a>
+            <a href="#contact" class="footer-col-link">Contact</a>
+          </div>
+
+          <div class="footer-nav-col">
+            <span class="footer-col-title">COMMUNICATIONS</span>
+            <a href="mailto:kairo.rec.co@gmail.com" class="footer-col-link">kairo.rec.co@gmail.com</a>
+            <a href="https://instagram.com/kairo.records" target="_blank" rel="noopener noreferrer" class="footer-col-link">Instagram: @kairo.records</a>
+            <a href="https://www.youtube.com/@KAIROREC" target="_blank" rel="noopener noreferrer" class="footer-col-link">YouTube: @KAIROREC</a>
+            <a href="https://wa.me/201159613280" target="_blank" rel="noopener noreferrer" class="footer-col-link">WhatsApp: 01159613280</a>
+          </div>
+
+          <div class="footer-nav-col">
+            <span class="footer-col-title">LOCATION</span>
+            <span class="footer-col-link">Cairo, Egypt (UTC+2)</span>
+            <span class="footer-col-link">30.0444° N, 31.2357° E</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom-row">
+        <span>© 2026 KAIRO RECORDS. ALL RIGHTS RESERVED.</span>
+        <span>CAIRO, EGYPT</span>
+        <a href="#hero" style="color: var(--highlight-cold);">BACK TO TOP ↑</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/site-content.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
