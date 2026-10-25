@@ -8,13 +8,17 @@
 
 /* --- 1. DESIGN TOKENS & COLOR SYSTEM --- */
 :root {
-  /* Primary Deep Cinematic Navy / Midnight Blue Palette */
-  --bg-void: #020611;
-  --bg-midnight: #050B18;
-  --bg-card: #071225;
-  --bg-elevated: #0A1630;
-  --bg-surface: #0D1F3C;
-  --bg-surface-trans: rgba(13, 31, 60, 0.45);
+  /* Shared Base Section Background Color (Exact Computed Base for Video Blend & Sections) */
+  --section-base-rgb: 2, 5, 14;
+  --section-bg-base: rgb(var(--section-base-rgb));
+
+  /* Near-Black Deep Cinematic Navy / Midnight Blue Palette */
+  --bg-void: var(--section-bg-base);
+  --bg-midnight: #040915;
+  --bg-card: #060E1E;
+  --bg-elevated: #081326;
+  --bg-surface: #0B1933;
+  --bg-surface-trans: rgba(11, 25, 51, 0.55);
 
   /* Deep Electric Blue Accent Palette */
   --accent-electric-dark: #123D73;
@@ -99,6 +103,19 @@ body {
   position: relative;
   min-height: 100vh;
   cursor: default;
+}
+
+/* Subtle static film grain texture for cinematic depth — behind content, pointer-events none */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
 /* Standard system cursor selection */
@@ -573,12 +590,13 @@ ul, ol {
   position: relative;
   width: 100%;
   height: 100vh;
-  min-height: 700px;
+  height: 100svh;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--bg-midnight);
+  background-color: var(--bg-void);
+  z-index: 2;
 }
 
 /* Subtle top navy vignette behind navbar: ensures logo, clock & links are crystal clear */
@@ -593,9 +611,29 @@ ul, ol {
   pointer-events: none;
   background: linear-gradient(
     180deg,
-    rgba(2, 6, 17, 0.7) 0%,
-    rgba(2, 6, 17, 0.35) 45%,
-    rgba(2, 6, 17, 0) 100%
+    rgba(var(--section-base-rgb), 0.75) 0%,
+    rgba(var(--section-base-rgb), 0.4) 45%,
+    rgba(var(--section-base-rgb), 0) 100%
+  );
+}
+
+/* Seamless bottom video blend overlay: fades video reflections into following section background */
+.hero-bottom-blend {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: clamp(100px, 18vw, 240px);
+  max-height: 30%;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(var(--section-base-rgb), 0) 0%,
+    rgba(var(--section-base-rgb), 0.08) 30%,
+    rgba(var(--section-base-rgb), 0.30) 55%,
+    rgba(var(--section-base-rgb), 0.70) 78%,
+    rgba(var(--section-base-rgb), 1) 100%
   );
 }
 
@@ -607,7 +645,7 @@ ul, ol {
   width: 100%;
   height: 100%;
   z-index: 1;
-  background: radial-gradient(circle at 60% 40%, #071225 0%, #050B18 55%, #020611 100%);
+  background: radial-gradient(circle at 60% 40%, #060E1E 0%, #040915 55%, #02050E 100%);
   overflow: hidden;
 }
 
@@ -639,7 +677,7 @@ ul, ol {
   width: 100%;
   height: 100%;
   z-index: 1;
-  background: radial-gradient(ellipse at center, rgba(18, 61, 115, 0.18) 0%, rgba(2, 6, 17, 0.85) 75%);
+  background: radial-gradient(ellipse at center, rgba(18, 61, 115, 0.18) 0%, rgba(2, 5, 14, 0.85) 75%);
   pointer-events: none;
 }
 
@@ -670,61 +708,6 @@ ul, ol {
   .hero-subtle-glow-orb {
     animation: none !important;
   }
-}
-
-/* Tagline & Actions Block Below Hero in Normal Document Flow */
-.hero-action-block {
-  width: 100%;
-  max-width: 600px;
-  margin: 4rem auto 4.5rem auto;
-  padding: 0 1.5rem;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  z-index: 5;
-  box-sizing: border-box;
-}
-
-.hero-tagline {
-  font-family: var(--font-primary);
-  font-size: clamp(1.05rem, 1.8vw, 1.3rem);
-  font-weight: 400;
-  color: var(--text-secondary);
-  letter-spacing: 0.04em;
-  margin: 0 0 1.25rem 0;
-  line-height: 1.4;
-}
-
-.hero-action-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.9rem;
-}
-
-.hero-primary-btn {
-  font-size: 0.82rem;
-  letter-spacing: 0.16em;
-  padding: 0.95rem 2.4rem;
-}
-
-.hero-services-link {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  text-decoration: none;
-  padding-bottom: 2px;
-  border-bottom: 1px solid transparent;
-  transition: color var(--transition-fast), border-color var(--transition-fast);
-}
-
-.hero-services-link:hover {
-  color: var(--highlight-cold);
-  border-bottom-color: var(--accent-electric-bright);
 }
 
 /* Global Cinematic Buttons */
@@ -777,7 +760,7 @@ ul, ol {
   transform: translateY(-2px);
 }
 
-/* --- 7. GLOBAL SECTION TYPOGRAPHY & HEADERS --- */
+/* --- 7. GLOBAL SECTION TYPOGRAPHY & ATMOSPHERIC ILLUMINATION --- */
 .section-wrapper {
   position: relative;
   width: 100%;
@@ -785,12 +768,68 @@ ul, ol {
   z-index: 5;
 }
 
-.section-wrapper.darker {
-  background-color: var(--bg-void);
+.section-wrapper.darker,
+.section-wrapper.navy-depth {
+  background-color: transparent;
 }
 
-.section-wrapper.navy-depth {
-  background: linear-gradient(180deg, var(--bg-void) 0%, var(--bg-midnight) 50%, var(--bg-void) 100%);
+/* Atmospheric section illumination pools matching dark-navy studio reference */
+#releases.releases-section {
+  position: relative;
+  z-index: 5;
+  padding: 6.5rem 0 8rem 0;
+  background-color: var(--section-bg-base);
+  overflow: hidden;
+}
+
+/* Subtle, broad blue radial glow near top of Latest Releases, continuing video's reflected blue light */
+#releases.releases-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 1100px 360px at 50% 140px, rgba(24, 75, 150, 0.16) 0%, rgba(14, 45, 95, 0.06) 50%, transparent 75%),
+    radial-gradient(ellipse 950px 600px at 78% 35%, rgba(18, 52, 105, 0.22) 0%, rgba(11, 28, 56, 0.08) 45%, transparent 75%);
+  mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.3) 24px, rgba(0, 0, 0, 1) 75px);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.3) 24px, rgba(0, 0, 0, 1) 75px);
+}
+
+.releases-section .container {
+  position: relative;
+  z-index: 1;
+}
+
+#about {
+  background: radial-gradient(ellipse 1000px 650px at 18% 45%, rgba(16, 48, 98, 0.2) 0%, rgba(9, 24, 48, 0.07) 50%, transparent 75%), var(--bg-void);
+}
+
+#services {
+  background: radial-gradient(ellipse 1100px 700px at 82% 35%, rgba(20, 56, 112, 0.2) 0%, rgba(10, 26, 52, 0.06) 50%, transparent 75%), var(--bg-void);
+}
+
+#projects {
+  background: radial-gradient(ellipse 950px 680px at 22% 55%, rgba(18, 50, 100, 0.22) 0%, rgba(9, 24, 48, 0.07) 50%, transparent 75%), var(--bg-void);
+}
+
+#artists {
+  background: radial-gradient(ellipse 1050px 650px at 76% 30%, rgba(19, 52, 104, 0.2) 0%, rgba(10, 26, 52, 0.06) 50%, transparent 75%), var(--bg-void);
+}
+
+#gallery {
+  background: radial-gradient(ellipse 950px 650px at 28% 45%, rgba(17, 46, 94, 0.2) 0%, rgba(9, 24, 48, 0.06) 50%, transparent 75%), var(--bg-void);
+}
+
+#specs {
+  background: radial-gradient(ellipse 1000px 650px at 74% 40%, rgba(19, 52, 104, 0.22) 0%, rgba(10, 26, 52, 0.07) 50%, transparent 75%), var(--bg-void);
+}
+
+#contact {
+  background: radial-gradient(ellipse 1100px 700px at 50% 25%, rgba(20, 56, 114, 0.24) 0%, rgba(10, 27, 54, 0.08) 50%, transparent 75%), var(--bg-void);
 }
 
 .section-header {
@@ -829,10 +868,6 @@ ul, ol {
 }
 
 /* --- 7.5 LATEST RELEASES SECTION (OFFICIAL YOUTUBE INTEGRATION) --- */
-.releases-section {
-  position: relative;
-  z-index: 5;
-}
 
 .releases-header-row {
   display: flex;
@@ -2453,7 +2488,7 @@ ul, ol {
 /* --- 16. CINEMATIC FOOTER --- */
 .site-footer {
   position: relative;
-  background-color: var(--bg-void);
+  background: radial-gradient(ellipse 850px 380px at 50% 0%, rgba(18, 48, 96, 0.16) 0%, transparent 70%), var(--bg-void);
   border-top: 1px solid var(--border-subtle);
   padding: 6rem 0 3rem 0;
   margin-bottom: 0;
@@ -2649,20 +2684,9 @@ ul, ol {
   .hero-wrapper {
     height: 100vh;
     height: 100svh;
-    min-height: 100svh;
   }
-  .hero-tagline {
-    font-size: 1.1rem;
-  }
-  .hero-action-block {
-    margin-top: 2.5rem;
-    margin-bottom: 3.5rem;
-    padding: 0 1.25rem;
-  }
-  .hero-primary-btn {
-    width: 100%;
-    max-width: 280px;
-    justify-content: center;
+  #releases.releases-section {
+    padding: 4.5rem 0 6rem 0;
   }
   .about-specs-grid, .vu-meters-container {
     grid-template-columns: 1fr;
