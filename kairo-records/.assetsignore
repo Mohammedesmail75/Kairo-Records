@@ -1,0 +1,7 @@
+# Backend server scripts and package configs
+server.js
+package.json
+package-lock.json
+README.md
+.env*
+.dev.vars*

@@ -71,14 +71,16 @@ async function handleReleases(request, env, ctx) {
     });
   }
 
-  // Obtain secret key from Cloudflare Worker environment
-  const apiKey = env?.YOUTUBE_API_KEY || (typeof process !== 'undefined' && process.env?.YOUTUBE_API_KEY);
+  // Robust secret resolution: supports env bindings, case-insensitivity, global scope, and trims whitespace
+  const apiKey = resolveApiKey(env);
 
   if (!apiKey) {
+    const boundKeys = env && typeof env === 'object' ? Object.keys(env) : [];
     return new Response(JSON.stringify({
       configured: false,
       error: 'YOUTUBE_API_KEY secret is not set in Cloudflare Worker configuration.',
       channelUrl: 'https://www.youtube.com/@KAIROREC',
+      bindingsPresent: boundKeys,
       videos: []
     }), {
       status: 200,
@@ -247,3 +249,48 @@ async function handleReleases(request, env, ctx) {
     });
   }
 }
+
+/**
+ * Robustly resolves the YouTube Data API key from environment bindings,
+ * handling case variations, whitespace, global scope, and process.env.
+ */
+function resolveApiKey(env) {
+  if (env && typeof env === 'object') {
+    if (typeof env.YOUTUBE_API_KEY === 'string' && env.YOUTUBE_API_KEY.trim()) {
+      return env.YOUTUBE_API_KEY.trim().replace(/^["']|["']$/g, '');
+    }
+    for (const key of Object.keys(env)) {
+      if (key.trim().toUpperCase() === 'YOUTUBE_API_KEY') {
+        const val = env[key];
+        if (typeof val === 'string' && val.trim()) {
+          return val.trim().replace(/^["']|["']$/g, '');
+        }
+      }
+    }
+  }
+
+  if (typeof YOUTUBE_API_KEY !== 'undefined' && typeof YOUTUBE_API_KEY === 'string' && YOUTUBE_API_KEY.trim()) {
+    return YOUTUBE_API_KEY.trim().replace(/^["']|["']$/g, '');
+  }
+
+  if (typeof globalThis !== 'undefined' && globalThis && typeof globalThis.YOUTUBE_API_KEY === 'string' && globalThis.YOUTUBE_API_KEY.trim()) {
+    return globalThis.YOUTUBE_API_KEY.trim().replace(/^["']|["']$/g, '');
+  }
+
+  if (typeof process !== 'undefined' && process.env) {
+    if (typeof process.env.YOUTUBE_API_KEY === 'string' && process.env.YOUTUBE_API_KEY.trim()) {
+      return process.env.YOUTUBE_API_KEY.trim().replace(/^["']|["']$/g, '');
+    }
+    for (const key of Object.keys(process.env)) {
+      if (key.trim().toUpperCase() === 'YOUTUBE_API_KEY') {
+        const val = process.env[key];
+        if (typeof val === 'string' && val.trim()) {
+          return val.trim().replace(/^["']|["']$/g, '');
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
