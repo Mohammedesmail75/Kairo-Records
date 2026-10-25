@@ -1,0 +1,4 @@
+# Cloudflare Workers / Local Environment Variables
+# Copy this file to .dev.vars for local testing with Wrangler or server.js
+# NOTE: Never commit your real API key to Git!
+YOUTUBE_API_KEY=your_youtube_data_api_v3_key_here

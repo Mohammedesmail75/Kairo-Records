@@ -1,0 +1,10 @@
+name = "kairo-records"
+main = "worker.js"
+compatibility_date = "2024-10-22"
+
+# Static Assets Configuration for Cloudflare Workers
+[assets]
+directory = "./kairo-records"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+html_handling = "auto-trailing-slash"
