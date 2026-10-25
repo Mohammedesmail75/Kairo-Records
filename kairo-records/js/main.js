@@ -19,7 +19,9 @@
     cairoClock: document.getElementById('cairoNavClock'),
     mobileToggle: document.getElementById('mobileToggle'),
     mobileDrawer: document.getElementById('mobileDrawer'),
+    mobileDrawerClose: document.getElementById('mobileDrawerClose'),
     mobileDrawerLinks: document.querySelectorAll('.mobile-drawer-link, #mobileCtaBtn'),
+    mobileSubnavLinks: document.querySelectorAll('.mobile-subnav-link'),
     navLinks: document.querySelectorAll('.nav-link'),
     sections: document.querySelectorAll('section[id]'),
 
@@ -131,14 +133,21 @@
         }
       }
 
-      // Highlight active section nav link
+      // Highlight active section nav link (both desktop and mobile subnav)
       DOM.sections.forEach(sec => {
-        const top = sec.offsetTop - 120;
+        const top = sec.offsetTop - 140;
         const height = sec.offsetHeight;
         const id = sec.getAttribute('id');
 
         if (scrollY >= top && scrollY < top + height) {
           DOM.navLinks.forEach(link => {
+            if (link.getAttribute('href') === `#${id}`) {
+              link.classList.add('active');
+            } else {
+              link.classList.remove('active');
+            }
+          });
+          DOM.mobileSubnavLinks.forEach(link => {
             if (link.getAttribute('href') === `#${id}`) {
               link.classList.add('active');
             } else {
@@ -157,25 +166,69 @@
   function initMobileDrawer() {
     if (!DOM.mobileToggle || !DOM.mobileDrawer) return;
 
-    DOM.mobileToggle.addEventListener('click', () => {
+    function openDrawer() {
+      DOM.mobileDrawer.classList.add('open');
+      DOM.mobileToggle.classList.add('active');
+      DOM.mobileToggle.setAttribute('aria-expanded', 'true');
+      DOM.mobileDrawer.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+
+      if (DOM.mobileDrawerClose) {
+        setTimeout(() => DOM.mobileDrawerClose.focus(), 50);
+      }
+    }
+
+    function closeDrawer() {
+      if (!DOM.mobileDrawer.classList.contains('open')) return;
+      DOM.mobileDrawer.classList.remove('open');
+      DOM.mobileToggle.classList.remove('active');
+      DOM.mobileToggle.setAttribute('aria-expanded', 'false');
+      DOM.mobileDrawer.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+
+      if (DOM.mobileToggle) {
+        DOM.mobileToggle.focus();
+      }
+    }
+
+    // Toggle button click handler
+    DOM.mobileToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
       const isOpen = DOM.mobileDrawer.classList.contains('open');
       if (isOpen) {
-        DOM.mobileDrawer.classList.remove('open');
-        DOM.mobileToggle.classList.remove('active');
-        document.body.style.overflow = '';
+        closeDrawer();
       } else {
-        DOM.mobileDrawer.classList.add('open');
-        DOM.mobileToggle.classList.add('active');
-        document.body.style.overflow = 'hidden';
+        openDrawer();
       }
     });
 
+    // Dedicated close button inside drawer
+    if (DOM.mobileDrawerClose) {
+      DOM.mobileDrawerClose.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeDrawer();
+      });
+    }
+
+    // Close when selecting any link or CTA inside drawer
     DOM.mobileDrawerLinks.forEach(link => {
       link.addEventListener('click', () => {
-        DOM.mobileDrawer.classList.remove('open');
-        DOM.mobileToggle.classList.remove('active');
-        document.body.style.overflow = '';
+        closeDrawer();
       });
+    });
+
+    // Backdrop click: close if clicking directly on overlay backdrop
+    DOM.mobileDrawer.addEventListener('click', (e) => {
+      if (e.target === DOM.mobileDrawer) {
+        closeDrawer();
+      }
+    });
+
+    // Escape key closes drawer
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && DOM.mobileDrawer.classList.contains('open')) {
+        closeDrawer();
+      }
     });
   }
 

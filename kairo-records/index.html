@@ -58,7 +58,8 @@
         </div>
       </div>
 
-      <nav aria-label="Primary Navigation">
+      <!-- Desktop Primary Navigation (Centered) -->
+      <nav class="desktop-nav" aria-label="Primary Navigation">
         <ul class="nav-links">
           <li><a href="#hero" class="nav-link active">Home</a></li>
           <li><a href="#releases" class="nav-link">Releases</a></li>
@@ -75,25 +76,47 @@
         </a>
 
         <!-- Mobile Hamburger Toggle -->
-        <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle Navigation">
+        <button class="mobile-toggle" id="mobileToggle" aria-label="Open Navigation Menu" aria-expanded="false" aria-controls="mobileDrawer">
           <span></span>
           <span></span>
         </button>
       </div>
     </div>
+
+    <!-- Visible Mobile Sub-Navigation Bar (Directly beneath top row on mobile) -->
+    <nav class="mobile-subnav" aria-label="Mobile Sections Navigation">
+      <ul class="mobile-subnav-links" id="mobileSubnavLinks">
+        <li><a href="#hero" class="mobile-subnav-link active">Home</a></li>
+        <li><a href="#releases" class="mobile-subnav-link">Releases</a></li>
+        <li><a href="#about" class="mobile-subnav-link">About</a></li>
+        <li><a href="#services" class="mobile-subnav-link">Services</a></li>
+        <li><a href="#contact" class="mobile-subnav-link">Contact</a></li>
+      </ul>
+    </nav>
   </header>
 
   <!-- Mobile Menu Drawer -->
-  <div class="mobile-drawer" id="mobileDrawer" aria-hidden="true">
-    <ul class="mobile-drawer-links">
-      <li><a href="#hero" class="mobile-drawer-link">Home</a></li>
-      <li><a href="#releases" class="mobile-drawer-link">Releases</a></li>
-      <li><a href="#about" class="mobile-drawer-link">About</a></li>
-      <li><a href="#services" class="mobile-drawer-link">Services</a></li>
-      <li><a href="#contact" class="mobile-drawer-link">Contact</a></li>
-    </ul>
-    <div style="margin-top: 1.5rem; text-align: center;">
-      <a href="#contact" class="btn-primary-cinematic" id="mobileCtaBtn">Start a Project</a>
+  <div class="mobile-drawer" id="mobileDrawer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Mobile Navigation Menu">
+    <button type="button" class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close Navigation Menu">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="mobile-drawer-inner">
+      <div class="mobile-drawer-brand">
+        <img src="assets/logo/kairo-logo.png" alt="KAIRO RECORDS" width="1024" height="398">
+      </div>
+      <ul class="mobile-drawer-links">
+        <li><a href="#hero" class="mobile-drawer-link">Home</a></li>
+        <li><a href="#releases" class="mobile-drawer-link">Releases</a></li>
+        <li><a href="#about" class="mobile-drawer-link">About</a></li>
+        <li><a href="#services" class="mobile-drawer-link">Services</a></li>
+        <li><a href="#contact" class="mobile-drawer-link">Contact</a></li>
+      </ul>
+      <div class="mobile-drawer-cta-wrap">
+        <a href="#contact" class="btn-primary-cinematic" id="mobileCtaBtn">
+          <span>Start a Project</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+        </a>
+      </div>
     </div>
   </div>
 
