@@ -338,10 +338,12 @@
               <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
             </div>
           </div>
-          <span class="release-badge">OFFICIAL RELEASE</span>
         </div>
         <div class="release-info">
-          ${dateStr ? `<span class="release-date">${escapeHtml(dateStr)}</span>` : ''}
+          <div class="release-header-meta">
+            ${dateStr ? `<span class="release-date">${escapeHtml(dateStr)}</span>` : '<span></span>'}
+            <span class="release-badge">OFFICIAL RELEASE</span>
+          </div>
           <h3 class="release-title" dir="auto">${escapeHtml(video.title)}</h3>
           <div class="release-meta-row">
             <span class="release-channel-name">KAIRO RECORDS</span>

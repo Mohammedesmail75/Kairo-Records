@@ -1089,23 +1089,6 @@ ul, ol {
   box-shadow: 0 0 24px var(--accent-blue-glow);
 }
 
-.release-badge {
-  position: absolute;
-  top: 0.85rem;
-  left: 0.85rem;
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  padding: 0.25rem 0.6rem;
-  background: rgba(2, 6, 17, 0.85);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--border-subtle);
-  border-radius: 2px;
-  color: var(--highlight-cold);
-  text-transform: uppercase;
-}
-
 /* Card Information Body */
 .release-info {
   padding: 1.3rem 1.4rem 1.4rem 1.4rem;
@@ -1114,13 +1097,49 @@ ul, ol {
   flex-grow: 1;
 }
 
+/* Metadata Row: Date on left, Official Release label on right */
+.release-header-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
 .release-date {
   font-family: var(--font-mono);
   font-size: 0.72rem;
   color: var(--text-muted);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  margin-bottom: 0.55rem;
+  line-height: 1;
+  margin: 0;
+}
+
+/* Understated Official Release Badge in normal document flow */
+.release-badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  color: var(--text-secondary);
+  background: rgba(14, 34, 68, 0.35);
+  border: 1px solid rgba(29, 101, 179, 0.32);
+  border-radius: 2px;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: border-color var(--transition-fast), color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.release-card:hover .release-badge {
+  border-color: rgba(29, 101, 179, 0.55);
+  color: var(--highlight-cold);
+  background: rgba(18, 50, 98, 0.45);
 }
 
 .release-title {
@@ -1201,7 +1220,13 @@ ul, ol {
 .skeleton-date {
   width: 70px;
   height: 12px;
-  margin-bottom: 0.8rem;
+  margin: 0;
+}
+
+.skeleton-badge {
+  width: 85px;
+  height: 16px;
+  border-radius: 2px;
 }
 
 .skeleton-title {
