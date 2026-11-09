@@ -3,14 +3,15 @@
  * Handles static asset serving and /api/releases with YouTube Data API v3 integration.
  */
 
-const CHANNEL_HANDLE = 'KAIROREC';
+const DEFAULT_PLAYLIST_ID = 'PLGcjuTeisA5Q';
 const KNOWN_CHANNEL_ID = 'UC9xHojIQiYeXsTzmZR7b5qg';
 const CACHE_TTL_SECONDS = 900; // 15 minutes
 
 // In-memory cache across worker invocation lifecycles
 let releasesCache = {
   data: null,
-  timestamp: 0
+  timestamp: 0,
+  playlistId: null
 };
 
 export default {
@@ -57,10 +58,15 @@ async function handleReleases(request, env, ctx) {
     });
   }
 
+  const playlistId = resolvePlaylistId(env);
   const now = Date.now();
 
-  // Return cached result if valid (within 15 minutes)
-  if (releasesCache.data && (now - releasesCache.timestamp) < (CACHE_TTL_SECONDS * 1000)) {
+  // Return cached result if valid (within 15 minutes and matching playlistId)
+  if (
+    releasesCache.data &&
+    releasesCache.playlistId === playlistId &&
+    (now - releasesCache.timestamp) < (CACHE_TTL_SECONDS * 1000)
+  ) {
     return new Response(JSON.stringify(releasesCache.data), {
       status: 200,
       headers: {
@@ -80,6 +86,7 @@ async function handleReleases(request, env, ctx) {
       configured: false,
       error: 'YOUTUBE_API_KEY secret is not set in Cloudflare Worker configuration.',
       channelUrl: 'https://www.youtube.com/@KAIROREC',
+      playlistId,
       bindingsPresent: boundKeys,
       videos: []
     }), {
@@ -89,34 +96,9 @@ async function handleReleases(request, env, ctx) {
   }
 
   try {
-    // Step 1: Resolve channel ID and uploads playlist ID using forHandle
-    let channelId = KNOWN_CHANNEL_ID;
-    let uploadsPlaylistId = 'UU' + channelId.substring(2);
-    let channelTitle = 'KAIRO RECORDS';
-
-    try {
-      const channelRes = await fetch(
-        `https://www.googleapis.com/youtube/v3/channels?part=snippet,contentDetails&forHandle=${CHANNEL_HANDLE}&key=${apiKey}`
-      );
-      if (channelRes.ok) {
-        const channelData = await channelRes.json();
-        if (channelData.items && channelData.items.length > 0) {
-          const item = channelData.items[0];
-          channelId = item.id || channelId;
-          channelTitle = item.snippet?.title || channelTitle;
-          if (item.contentDetails?.relatedPlaylists?.uploads) {
-            uploadsPlaylistId = item.contentDetails.relatedPlaylists.uploads;
-          }
-        }
-      }
-    } catch (e) {
-      // Fallback to known uploads playlist ID if handle lookup fails
-      uploadsPlaylistId = 'UU' + channelId.substring(2);
-    }
-
-    // Step 2: Fetch latest uploads from the uploads playlist (up to 6 items)
+    // Step 1: Fetch items from the configured official releases playlist
     const playlistRes = await fetch(
-      `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&playlistId=${uploadsPlaylistId}&maxResults=6&key=${apiKey}`
+      `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails,status&playlistId=${encodeURIComponent(playlistId)}&maxResults=50&key=${apiKey}`
     );
 
     if (!playlistRes.ok) {
@@ -135,13 +117,15 @@ async function handleReleases(request, env, ctx) {
     if (items.length === 0) {
       const emptyPayload = {
         configured: true,
-        channelId,
-        channelTitle,
+        channelId: KNOWN_CHANNEL_ID,
+        channelTitle: 'KAIRO RECORDS',
         channelUrl: 'https://www.youtube.com/@KAIROREC',
+        playlistId,
+        playlistUrl: `https://www.youtube.com/playlist?list=${playlistId}`,
         videos: [],
         cachedAt: new Date().toISOString()
       };
-      releasesCache = { data: emptyPayload, timestamp: now };
+      releasesCache = { data: emptyPayload, timestamp: now, playlistId };
       return new Response(JSON.stringify(emptyPayload), {
         status: 200,
         headers: {
@@ -152,16 +136,21 @@ async function handleReleases(request, env, ctx) {
       });
     }
 
-    // Step 3: Verify video availability and embedding status via videos.list
+    // Step 2: Fetch full video details (real title, accurate published date, thumbnails, privacy, embedding status)
     const videoIds = items
       .map(i => i.contentDetails?.videoId || i.snippet?.resourceId?.videoId)
       .filter(Boolean);
 
+    // Deduplicate IDs while preserving order
+    const uniqueVideoIds = [...new Set(videoIds)];
+
     let videosMap = {};
-    if (videoIds.length > 0) {
+    let videosFetchSucceeded = false;
+
+    if (uniqueVideoIds.length > 0) {
       try {
         const videosRes = await fetch(
-          `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,status&id=${videoIds.join(',')}&key=${apiKey}`
+          `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,status&id=${encodeURIComponent(uniqueVideoIds.join(','))}&key=${apiKey}`
         );
         if (videosRes.ok) {
           const videosData = await videosRes.json();
@@ -169,6 +158,7 @@ async function handleReleases(request, env, ctx) {
             videosData.items.forEach(v => {
               videosMap[v.id] = v;
             });
+            videosFetchSucceeded = true;
           }
         }
       } catch (ve) {
@@ -176,7 +166,8 @@ async function handleReleases(request, env, ctx) {
       }
     }
 
-    // Step 4: Map and filter public embeddable videos
+    // Step 3: Map and filter public videos from this playlist
+    // Short official releases must remain eligible if in playlist; do not filter by duration
     const videos = items
       .map(item => {
         const id = item.contentDetails?.videoId || item.snippet?.resourceId?.videoId;
@@ -184,21 +175,37 @@ async function handleReleases(request, env, ctx) {
 
         const vInfo = videosMap[id];
 
-        // Skip non-public videos if status is available
-        if (vInfo && vInfo.status && vInfo.status.privacyStatus && vInfo.status.privacyStatus !== 'public') {
+        // If videos.list succeeded and returned items, verify the video exists
+        if (videosFetchSucceeded && !vInfo) {
+          // Video deleted, unavailable, or private (not returned by public videos.list)
+          return null;
+        }
+
+        // Skip non-public videos (private or unlisted)
+        const privacyStatus = vInfo?.status?.privacyStatus || item.status?.privacyStatus;
+        if (privacyStatus && privacyStatus !== 'public') {
+          return null;
+        }
+
+        // Filter out placeholder titles for private or deleted playlist items
+        const rawTitle = item.snippet?.title || '';
+        if (rawTitle === 'Private video' || rawTitle === 'Deleted video') {
           return null;
         }
 
         const snippet = vInfo?.snippet || item.snippet;
-        const title = snippet?.title || 'KAIRO RECORDS Release';
-        const publishedAt = snippet?.publishedAt || item.contentDetails?.videoPublishedAt || '';
+        const title = snippet?.title || rawTitle || 'KAIRO RECORDS Release';
 
-        const thumbs = snippet?.thumbnails || {};
+        // Real video publication date: vInfo publishedAt is video release date, contentDetails is fallback
+        const publishedAt = snippet?.publishedAt || item.contentDetails?.videoPublishedAt || item.snippet?.publishedAt || '';
+
+        const thumbs = snippet?.thumbnails || item.snippet?.thumbnails || {};
         const thumbnail =
           thumbs.maxres?.url ||
           thumbs.standard?.url ||
           thumbs.high?.url ||
           thumbs.medium?.url ||
+          thumbs.default?.url ||
           `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
 
         const embeddable = vInfo?.status?.embeddable !== false;
@@ -213,20 +220,28 @@ async function handleReleases(request, env, ctx) {
           embeddable
         };
       })
-      .filter(Boolean)
-      .slice(0, 6);
+      .filter(Boolean);
+
+    // Step 4: Sort public videos newest first by publication date
+    videos.sort((a, b) => {
+      const timeA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+      const timeB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
+      return timeB - timeA;
+    });
 
     const payload = {
       configured: true,
-      channelId,
-      channelTitle,
+      channelId: KNOWN_CHANNEL_ID,
+      channelTitle: 'KAIRO RECORDS',
       channelUrl: 'https://www.youtube.com/@KAIROREC',
+      playlistId,
+      playlistUrl: `https://www.youtube.com/playlist?list=${playlistId}`,
       videos,
       cachedAt: new Date().toISOString()
     };
 
     // Cache successful response
-    releasesCache = { data: payload, timestamp: now };
+    releasesCache = { data: payload, timestamp: now, playlistId };
 
     return new Response(JSON.stringify(payload), {
       status: 200,
@@ -242,9 +257,10 @@ async function handleReleases(request, env, ctx) {
       configured: true,
       error: error.message || 'Error communicating with YouTube API',
       channelUrl: 'https://www.youtube.com/@KAIROREC',
+      playlistId,
       videos: []
     }), {
-      status: 200, // Return 200 with error property so client gracefully displays error fallback UI
+      status: 200, // Return 200 with error property so client gracefully displays fallback UI
       headers: corsHeaders
     });
   }
@@ -294,3 +310,52 @@ function resolveApiKey(env) {
   return null;
 }
 
+/**
+ * Robustly resolves the official releases playlist ID from Worker environment configuration.
+ * Supports PLAYLIST_ID, RELEASES_PLAYLIST_ID, YOUTUBE_PLAYLIST_ID across env bindings and process.env.
+ * Defaults to 'PLGcjuTeisA5Q'.
+ */
+function resolvePlaylistId(env) {
+  if (env && typeof env === 'object') {
+    if (typeof env.PLAYLIST_ID === 'string' && env.PLAYLIST_ID.trim()) {
+      return env.PLAYLIST_ID.trim().replace(/^["']|["']$/g, '');
+    }
+    if (typeof env.RELEASES_PLAYLIST_ID === 'string' && env.RELEASES_PLAYLIST_ID.trim()) {
+      return env.RELEASES_PLAYLIST_ID.trim().replace(/^["']|["']$/g, '');
+    }
+    if (typeof env.YOUTUBE_PLAYLIST_ID === 'string' && env.YOUTUBE_PLAYLIST_ID.trim()) {
+      return env.YOUTUBE_PLAYLIST_ID.trim().replace(/^["']|["']$/g, '');
+    }
+    for (const key of Object.keys(env)) {
+      const upper = key.trim().toUpperCase();
+      if (upper === 'PLAYLIST_ID' || upper === 'RELEASES_PLAYLIST_ID' || upper === 'YOUTUBE_PLAYLIST_ID') {
+        const val = env[key];
+        if (typeof val === 'string' && val.trim()) {
+          return val.trim().replace(/^["']|["']$/g, '');
+        }
+      }
+    }
+  }
+
+  if (typeof PLAYLIST_ID !== 'undefined' && typeof PLAYLIST_ID === 'string' && PLAYLIST_ID.trim()) {
+    return PLAYLIST_ID.trim().replace(/^["']|["']$/g, '');
+  }
+
+  if (typeof globalThis !== 'undefined' && globalThis && typeof globalThis.PLAYLIST_ID === 'string' && globalThis.PLAYLIST_ID.trim()) {
+    return globalThis.PLAYLIST_ID.trim().replace(/^["']|["']$/g, '');
+  }
+
+  if (typeof process !== 'undefined' && process.env) {
+    if (typeof process.env.PLAYLIST_ID === 'string' && process.env.PLAYLIST_ID.trim()) {
+      return process.env.PLAYLIST_ID.trim().replace(/^["']|["']$/g, '');
+    }
+    if (typeof process.env.RELEASES_PLAYLIST_ID === 'string' && process.env.RELEASES_PLAYLIST_ID.trim()) {
+      return process.env.RELEASES_PLAYLIST_ID.trim().replace(/^["']|["']$/g, '');
+    }
+    if (typeof process.env.YOUTUBE_PLAYLIST_ID === 'string' && process.env.YOUTUBE_PLAYLIST_ID.trim()) {
+      return process.env.YOUTUBE_PLAYLIST_ID.trim().replace(/^["']|["']$/g, '');
+    }
+  }
+
+  return DEFAULT_PLAYLIST_ID;
+}

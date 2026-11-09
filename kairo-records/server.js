@@ -11,6 +11,8 @@ const path = require('path');
 
 const PORT = process.env.PORT || 3001;
 const BASE_DIR = __dirname;
+const DEFAULT_PLAYLIST_ID = 'PLGcjuTeisA5Q';
+const KNOWN_CHANNEL_ID = 'UC9xHojIQiYeXsTzmZR7b5qg';
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -55,8 +57,21 @@ loadEnvFile(path.join(BASE_DIR, '..', '.env'));
 loadEnvFile(path.join(BASE_DIR, '.dev.vars'));
 loadEnvFile(path.join(BASE_DIR, '.env'));
 
-let localReleasesCache = { data: null, timestamp: 0 };
+let localReleasesCache = { data: null, timestamp: 0, playlistId: null };
 const CACHE_TTL_SECONDS = 900; // 15 minutes
+
+function resolvePlaylistId() {
+  if (process.env.PLAYLIST_ID && process.env.PLAYLIST_ID.trim()) {
+    return process.env.PLAYLIST_ID.trim().replace(/^["']|["']$/g, '');
+  }
+  if (process.env.RELEASES_PLAYLIST_ID && process.env.RELEASES_PLAYLIST_ID.trim()) {
+    return process.env.RELEASES_PLAYLIST_ID.trim().replace(/^["']|["']$/g, '');
+  }
+  if (process.env.YOUTUBE_PLAYLIST_ID && process.env.YOUTUBE_PLAYLIST_ID.trim()) {
+    return process.env.YOUTUBE_PLAYLIST_ID.trim().replace(/^["']|["']$/g, '');
+  }
+  return DEFAULT_PLAYLIST_ID;
+}
 
 const server = http.createServer(async (req, res) => {
   let reqUrl = req.url.split('?')[0];
@@ -71,8 +86,13 @@ const server = http.createServer(async (req, res) => {
       'Access-Control-Allow-Headers': 'Content-Type'
     };
 
+    const playlistId = resolvePlaylistId();
     const now = Date.now();
-    if (localReleasesCache.data && (now - localReleasesCache.timestamp) < (CACHE_TTL_SECONDS * 1000)) {
+    if (
+      localReleasesCache.data &&
+      localReleasesCache.playlistId === playlistId &&
+      (now - localReleasesCache.timestamp) < (CACHE_TTL_SECONDS * 1000)
+    ) {
       res.writeHead(200, {
         ...corsHeaders,
         'Cache-Control': `public, max-age=${CACHE_TTL_SECONDS}, s-maxage=${CACHE_TTL_SECONDS}`,
@@ -89,32 +109,16 @@ const server = http.createServer(async (req, res) => {
         configured: false,
         error: 'YOUTUBE_API_KEY is not configured.',
         channelUrl: 'https://www.youtube.com/@KAIROREC',
+        playlistId,
         videos: []
       }));
       return;
     }
 
     try {
-      let channelId = 'UC9xHojIQiYeXsTzmZR7b5qg';
-      let uploadsPlaylistId = 'UU9xHojIQiYeXsTzmZR7b5qg';
-      let channelTitle = 'KAIRO RECORDS';
-
-      try {
-        const cRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet,contentDetails&forHandle=KAIROREC&key=${apiKey}`);
-        if (cRes.ok) {
-          const cData = await cRes.json();
-          if (cData.items && cData.items.length > 0) {
-            const item = cData.items[0];
-            channelId = item.id || channelId;
-            channelTitle = item.snippet?.title || channelTitle;
-            if (item.contentDetails?.relatedPlaylists?.uploads) {
-              uploadsPlaylistId = item.contentDetails.relatedPlaylists.uploads;
-            }
-          }
-        }
-      } catch (e) {}
-
-      const pRes = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&playlistId=${uploadsPlaylistId}&maxResults=6&key=${apiKey}`);
+      const pRes = await fetch(
+        `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails,status&playlistId=${encodeURIComponent(playlistId)}&maxResults=50&key=${apiKey}`
+      );
       if (!pRes.ok) {
         throw new Error(`YouTube playlistItems API returned ${pRes.status}`);
       }
@@ -122,14 +126,21 @@ const server = http.createServer(async (req, res) => {
       const pData = await pRes.json();
       const items = pData.items || [];
       const videoIds = items.map(i => i.contentDetails?.videoId || i.snippet?.resourceId?.videoId).filter(Boolean);
+      const uniqueVideoIds = [...new Set(videoIds)];
 
       let videosMap = {};
-      if (videoIds.length > 0) {
+      let videosFetchSucceeded = false;
+      if (uniqueVideoIds.length > 0) {
         try {
-          const vRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,status&id=${videoIds.join(',')}&key=${apiKey}`);
+          const vRes = await fetch(
+            `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,status&id=${encodeURIComponent(uniqueVideoIds.join(','))}&key=${apiKey}`
+          );
           if (vRes.ok) {
             const vData = await vRes.json();
-            if (vData.items) vData.items.forEach(v => { videosMap[v.id] = v; });
+            if (vData.items) {
+              vData.items.forEach(v => { videosMap[v.id] = v; });
+              videosFetchSucceeded = true;
+            }
           }
         } catch (ve) {}
       }
@@ -138,33 +149,57 @@ const server = http.createServer(async (req, res) => {
         const id = item.contentDetails?.videoId || item.snippet?.resourceId?.videoId;
         if (!id) return null;
         const vInfo = videosMap[id];
-        if (vInfo && vInfo.status && vInfo.status.privacyStatus && vInfo.status.privacyStatus !== 'public') return null;
+        if (videosFetchSucceeded && !vInfo) return null;
+
+        const privacyStatus = vInfo?.status?.privacyStatus || item.status?.privacyStatus;
+        if (privacyStatus && privacyStatus !== 'public') return null;
+
+        const rawTitle = item.snippet?.title || '';
+        if (rawTitle === 'Private video' || rawTitle === 'Deleted video') return null;
 
         const snippet = vInfo?.snippet || item.snippet;
-        const thumbs = snippet?.thumbnails || {};
-        const thumbnail = thumbs.maxres?.url || thumbs.standard?.url || thumbs.high?.url || thumbs.medium?.url || `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+        const title = snippet?.title || rawTitle || 'KAIRO RECORDS Release';
+        const publishedAt = snippet?.publishedAt || item.contentDetails?.videoPublishedAt || item.snippet?.publishedAt || '';
+
+        const thumbs = snippet?.thumbnails || item.snippet?.thumbnails || {};
+        const thumbnail =
+          thumbs.maxres?.url ||
+          thumbs.standard?.url ||
+          thumbs.high?.url ||
+          thumbs.medium?.url ||
+          thumbs.default?.url ||
+          `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
 
         return {
           id,
-          title: snippet?.title || 'KAIRO RECORDS Release',
-          publishedAt: snippet?.publishedAt || item.contentDetails?.videoPublishedAt || '',
+          title,
+          publishedAt,
           thumbnail,
           url: `https://www.youtube.com/watch?v=${id}`,
           embedUrl: `https://www.youtube-nocookie.com/embed/${id}`,
           embeddable: vInfo?.status?.embeddable !== false
         };
-      }).filter(Boolean).slice(0, 6);
+      }).filter(Boolean);
+
+      // Sort public releases newest first
+      videos.sort((a, b) => {
+        const timeA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+        const timeB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
+        return timeB - timeA;
+      });
 
       const payload = {
         configured: true,
-        channelId,
-        channelTitle,
+        channelId: KNOWN_CHANNEL_ID,
+        channelTitle: 'KAIRO RECORDS',
         channelUrl: 'https://www.youtube.com/@KAIROREC',
+        playlistId,
+        playlistUrl: `https://www.youtube.com/playlist?list=${playlistId}`,
         videos,
         cachedAt: new Date().toISOString()
       };
 
-      localReleasesCache = { data: payload, timestamp: now };
+      localReleasesCache = { data: payload, timestamp: now, playlistId };
       res.writeHead(200, {
         ...corsHeaders,
         'Cache-Control': `public, max-age=${CACHE_TTL_SECONDS}, s-maxage=${CACHE_TTL_SECONDS}`,
@@ -178,6 +213,7 @@ const server = http.createServer(async (req, res) => {
         configured: true,
         error: err.message || 'Error fetching from YouTube API',
         channelUrl: 'https://www.youtube.com/@KAIROREC',
+        playlistId,
         videos: []
       }));
       return;
